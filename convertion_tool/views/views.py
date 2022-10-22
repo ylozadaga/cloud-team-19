@@ -9,15 +9,18 @@ user_schema = UserSchema()
 class SignUpView(Resource):
     def post(self):
         new_user = User(username=request.json["username"], password=request.json["password"], email=request.json["email"])
-        token_de_acceso = create_access_token(identity = request.json["username"])
         db.session.add(new_user)
         db.session.commit()
-        return {"mensaje":"usuario creado exitosamente", "token de acceso":token_de_acceso}
+        return {"mensaje":"cuenta creada exitosamente"}
 
 
 class LogInView(Resource):
     def post(self):
-        return None
+        new_user = User(username=request.json["username"], password=request.json["password"])
+        token_de_acceso = create_access_token(identity = request.json["username"])
+        db.session.add(new_user)
+        db.session.commit()
+        return {"token de acceso":token_de_acceso}
 
 
 class FileView(Resource):
