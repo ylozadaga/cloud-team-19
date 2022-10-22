@@ -2,7 +2,6 @@ from flask import request #
 from models import db, User, UserSchema #
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource 
-#convertion_tool.models
 
 user_schema = UserSchema()
 
