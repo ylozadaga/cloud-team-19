@@ -128,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea
+convertion_tool/convertion-tool.db

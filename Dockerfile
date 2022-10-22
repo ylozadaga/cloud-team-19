@@ -2,9 +2,9 @@ FROM ubuntu:22.04
 WORKDIR /app
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
-RUN apk add --no-cache gcc musl-dev linux-headers
 COPY requirements.txt requirements.txt
+COPY /convertion_tool /app
+RUN apt update && apt -y upgrade && apt -y install python3 && apt install -y python3-pip && apt install python-is-python3
 RUN pip install -r requirements.txt
 EXPOSE 5000
-COPY . .
 CMD ["flask", "run"]
