@@ -1,18 +1,24 @@
-from sqlite3 import Timestamp
 from flask import request
-from models.models import Task, TaskSchema #
-from models import db, User, UserSchema #
+from sqlite3 import Timestamp
+from models import db, User, UserSchema, Task, TaskSchema, File, FileSchema, Formats, Status
+from utils.system_utils import delete_file_if_exist
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource 
 
 user_schema = UserSchema()
 task_schema = TaskSchema()
 
+
+class PingPongView(Resource):
+    def get(self):
+        return "pong", 200
+
+
 class SignUpView(Resource):
     def post(self):
         new_user = User(username=request.json["username"],password1=request.json["password1"],
                     password2=request.json["password2"], email=request.json["email"])
-      
+
         if new_user.password1 == new_user.password2:
             if len(new_user.password1)<5:
                 return {"mensaje": "La contraseña debe tener más de 5 caracteres"}
@@ -20,7 +26,7 @@ class SignUpView(Resource):
                 db.session.add(new_user)
                 db.session.commit()
             return {"mensaje":"cuenta creada exitosamente", "id": new_user.id }
-        else: 
+        else:
             return {"mensaje":"Las contraseñas no cohinciden", "id": new_user.id }
 
 
@@ -56,10 +62,6 @@ class FileView(Resource):
 
 class TasksView(Resource):
 
-    @jwt_required()
-    def get(self):
-        return None
-
     #@jwt_required()
     def post(self):
         args = request.args
@@ -70,14 +72,6 @@ class TasksView(Resource):
         db.session.add(new_task)
         db.session.commit()
         return task_schema.dump(new_task)
-
-    @jwt_required()
-    def put(self):
-        return None
-
-    @jwt_required()
-    def delete(self):
-        return None
 
 
 class TaskView(Resource):
@@ -93,6 +87,14 @@ class TaskView(Resource):
 
     @jwt_required()
     def put(self, id_task):
+        task = Task.query.get_or_404(id_task)
+        new_format_enum = Formats.from_str(request.json.get['newFormat'])
+        if new_format_enum != task.output_format:
+            task.output_format = new_format_enum
+            if Status.PROCESSED == task.status:
+                file = File.query.get_or_404(task.id_file)
+                delete_file_if_exist(file.output_path)
+            task.status = Status.UPLOADED
         return None
 
     @jwt_required()
@@ -105,7 +107,7 @@ class TaskViewUser(Resource):
     @jwt_required()
     def post(self, id_user):
         return None
-    
+
     #@jwt_required()
     def get(self, id_user):
         user = User.query.get_or_404(id_user)
