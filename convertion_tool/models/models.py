@@ -41,7 +41,7 @@ class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     input_path = db.Column(db.String)
     output_path = db.Column(db.String)
-    id_task = db.Column(db.Integer, db.ForeignKey('task.id'))
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
 class Task(db.Model):
@@ -49,8 +49,8 @@ class Task(db.Model):
     status = db.Column(db.Enum(Status))
     input_format = db.Column(db.Enum(Formats))
     output_format = db.Column(db.Enum(Formats))
-    timestamp = db.Column(db.TIMESTAMP)
-    id_user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     file = db.relationship('File', cascade=CASCADE, uselist=False)
 
 
@@ -107,4 +107,3 @@ class UserSchema(SQLAlchemyAutoSchema):
         load_instance = True
 
     tasks = fields.Nested(TaskSchema())
-

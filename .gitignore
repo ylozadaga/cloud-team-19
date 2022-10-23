@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 .idea
 convertion_tool/convertion-tool.db
+convertion_tool/app/
