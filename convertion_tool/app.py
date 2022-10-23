@@ -32,7 +32,7 @@ api.add_resource(PingPongView, '/api/ping')
 api.add_resource(SignUpView, '/api/auth/signup')
 api.add_resource(LogInView, '/api/auth/login')
 api.add_resource(TasksView, '/api/tasks')
-api.add_resource(TaskView, '/api/task/<int:id_task>')
+api.add_resource(TaskView, '/api/task/<int:task_id>')
 api.add_resource(FileView, '/api/files/<filename>')
 api.add_resource(TaskViewUser, '/api/task/<int:id_user>/user')
 
