@@ -15,11 +15,33 @@ class Formats(enum.Enum):
     WAV = 4,
     WMA = 5
 
+    @staticmethod
+    def from_str(key):
+        upper_key = key.upper()
+        if upper_key == 'MP3':
+            return Formats.MP3
+        elif upper_key == 'ACC':
+            return Formats.ACC
+        elif upper_key == 'AGG':
+            return Formats.AGG
+        elif upper_key == 'WAV':
+            return Formats.WAV
+        elif upper_key == 'WMA':
+            return Formats.WMA
+        else:
+            raise NotImplementedError
+
 
 class Status(enum.Enum):
     UPLOADED = 1,
-    PROCESSING = 2,
-    PROCESSED = 3
+    PROCESSED = 2
+
+
+class File(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    input_path = db.Column(db.String)
+    output_path = db.Column(db.String)
+    id_task = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
 class Task(db.Model):
@@ -29,6 +51,7 @@ class Task(db.Model):
     output_format = db.Column(db.Enum(Formats))
     timestamp = db.Column(db.TIMESTAMP)
     id_user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    file = db.relationship('File', cascade=CASCADE, uselist=False)
 
 
 class User(db.Model):
@@ -54,6 +77,14 @@ class StatusToDic(fields.Field):
         return {'status': value.name, 'id': value.value}
 
 
+class FileSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = File
+        include_relationships = True
+        include_fk = True
+        load_instance = True
+
+
 class TaskSchema(SQLAlchemyAutoSchema):
     status = StatusToDic(attribute='status')
     input_format = FormatsToDic(attribute='input_format')
@@ -65,6 +96,7 @@ class TaskSchema(SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
 
+    file = fields.Nested(FileSchema())
     timestamp = fields.String()
 
 
