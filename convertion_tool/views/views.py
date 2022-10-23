@@ -9,8 +9,7 @@ class SignUpView(Resource):
     def post(self):
         new_user = User(username=request.json["username"],password1=request.json["password1"],
                     password2=request.json["password2"], email=request.json["email"])
-        Check = User(password1=request.json["password1"],password2=request.json["password2"])
-
+      
         if new_user.password1 == new_user.password2:
             if len(new_user.password1)<5:
                 return {"mensaje": "La contraseña debe tener más de 5 caracteres"}
@@ -24,11 +23,14 @@ class SignUpView(Resource):
 
 class LogInView(Resource):
     def post(self):
-        new_user = User(username=request.json["username"], password1=request.json["password1"])
-        token_de_acceso = create_access_token(identity = request.json["username"])
-        db.session.add(new_user)
+        user = User.query.filter(User.username == request.json["username"],
+                                User.password1 == request.json["password1"]).first()
         db.session.commit()
-        return {"token de acceso":token_de_acceso}
+        if user is None:
+            return "Ese usuario no ha sido registrado", 404
+        else:
+            token_de_acceso = create_access_token(identity=user.id)
+            return {"token": token_de_acceso}
 
 
 class FileView(Resource):
