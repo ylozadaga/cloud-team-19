@@ -1,9 +1,12 @@
-from flask import request #
+from sqlite3 import Timestamp
+from flask import request
+from models.models import Task, TaskSchema #
 from models import db, User, UserSchema #
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource 
 
 user_schema = UserSchema()
+task_schema = TaskSchema()
 
 class SignUpView(Resource):
     def post(self):
@@ -57,9 +60,16 @@ class TasksView(Resource):
     def get(self):
         return None
 
-    @jwt_required()
+    #@jwt_required()
     def post(self):
-        return None
+        args = request.args
+        new_task = Task(status = args.get('status'),
+                        input_format = args.get('input_format'),
+                        output_format = args.get('output_format'),
+                        id_user = args.get('id_user'))
+        db.session.add(new_task)
+        db.session.commit()
+        return task_schema.dump(new_task)
 
     @jwt_required()
     def put(self):
@@ -72,9 +82,10 @@ class TasksView(Resource):
 
 class TaskView(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_task):
-        return None
+        task = Task.query.get_or_404(id_task)
+        return task_schema.dump(task)
 
     @jwt_required()
     def post(self, id_task):
@@ -94,3 +105,8 @@ class TaskViewUser(Resource):
     @jwt_required()
     def post(self, id_user):
         return None
+    
+    #@jwt_required()
+    def get(self, id_user):
+        user = User.query.get_or_404(id_user)
+        return [task_schema.dump(task) for task in user.tasks]
