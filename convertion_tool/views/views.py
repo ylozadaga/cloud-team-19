@@ -7,15 +7,24 @@ user_schema = UserSchema()
 
 class SignUpView(Resource):
     def post(self):
-        new_user = User(username=request.json["username"], password=request.json["password"], email=request.json["email"])
-        db.session.add(new_user)
-        db.session.commit()
-        return {"mensaje":"cuenta creada exitosamente"}
+        new_user = User(username=request.json["username"],password1=request.json["password1"],
+                    password2=request.json["password2"], email=request.json["email"])
+        Check = User(password1=request.json["password1"],password2=request.json["password2"])
+
+        if new_user.password1 == new_user.password2:
+            if len(new_user.password1)<5:
+                return {"mensaje": "La contraseña debe tener más de 5 caracteres"}
+            else:
+                db.session.add(new_user)
+                db.session.commit()
+            return {"mensaje":"cuenta creada exitosamente", "id": new_user.id }
+        else: 
+            return {"mensaje":"Las contraseñas no cohinciden", "id": new_user.id }
 
 
 class LogInView(Resource):
     def post(self):
-        new_user = User(username=request.json["username"], password=request.json["password"])
+        new_user = User(username=request.json["username"], password1=request.json["password1"])
         token_de_acceso = create_access_token(identity = request.json["username"])
         db.session.add(new_user)
         db.session.commit()
