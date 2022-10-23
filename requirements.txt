@@ -24,3 +24,5 @@ gunicorn==20.1.0
 Flask-Mail==0.9.1
 requests==2.28.1
 Wheel==0.37.1
+Schedule==1.1.0
+Pydub==0.25.1

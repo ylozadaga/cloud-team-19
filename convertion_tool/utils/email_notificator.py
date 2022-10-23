@@ -1,10 +1,11 @@
 from flask_mail import *
+from ..app import app, mail
 
 
-def notificar():
-    message = Message('Codigo Notificacion Finalizacion Conversion',
+def notificar(email):
+    message = Message('Notificacion finalizacion de conversion de archivos',
                       sender=app.config["MAIL_USERNAME"],
-                      recipients=[request.json["correo"]])
+                      recipients=email)
     message.body = 'mensaje'
     mail.send(message)
     return True
