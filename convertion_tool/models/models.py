@@ -47,8 +47,8 @@ class File(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(Status))
-    input_format = db.Column(db.Enum(Status))
-    output_format = db.Column(db.Enum(Status))
+    input_format = db.Column(db.Enum(Formats))
+    output_format = db.Column(db.Enum(Formats))
     timestamp = db.Column(db.TIMESTAMP)
     id_user = db.Column(db.Integer, db.ForeignKey('user.id'))
     file = db.relationship('File', cascade=CASCADE, uselist=False)
@@ -57,7 +57,8 @@ class Task(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50))
-    password = db.Column(db.String(50))
+    password1 = db.Column(db.String(50))
+    password2 = db.Column(db.String(50))
     email = db.Column(db.String(50))
     tasks = db.relationship('Task', cascade=CASCADE)
 

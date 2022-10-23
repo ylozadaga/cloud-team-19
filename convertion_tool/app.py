@@ -4,8 +4,8 @@ from flask_restful import Api
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
-from models import db
-from views import PingPongView, SignUpView, LogInView, FileView, TaskView, TasksView
+from models import db, User
+from views import PingPongView, SignUpView, LogInView, FileView, TaskView, TasksView, TaskViewUser
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///convertion-tool.db'
@@ -34,3 +34,16 @@ api.add_resource(LogInView, '/api/auth/login')
 api.add_resource(TasksView, '/api/tasks')
 api.add_resource(TaskView, '/api/task/<int:id_task>')
 api.add_resource(FileView, '/api/files/<filename>')
+api.add_resource(TaskViewUser, '/api/task/<int:id_user>/user')
+
+with app_context:
+    numberUsers = db.session.query(User).count()
+    if numberUsers == 0:
+        new_user = User(
+            username="user01",
+            email="userprueba@gmail.com",
+            password1="user01",
+            password2="user01"
+        )
+        db.session.add(new_user)
+        db.session.commit()

@@ -1,4 +1,5 @@
 from flask import request
+from sqlite3 import Timestamp
 from models import db, User, UserSchema, Task, TaskSchema, File, FileSchema, Formats, Status
 from utils.system_utils import delete_file_if_exist
 from flask_jwt_extended import jwt_required, create_access_token
@@ -15,19 +16,30 @@ class PingPongView(Resource):
 
 class SignUpView(Resource):
     def post(self):
-        new_user = User(username=request.json["username"], password=request.json["password"], email=request.json["email"])
-        db.session.add(new_user)
-        db.session.commit()
-        return {"mensaje":"cuenta creada exitosamente"}
+        new_user = User(username=request.json["username"],password1=request.json["password1"],
+                    password2=request.json["password2"], email=request.json["email"])
+
+        if new_user.password1 == new_user.password2:
+            if len(new_user.password1)<5:
+                return {"mensaje": "La contraseña debe tener más de 5 caracteres"}
+            else:
+                db.session.add(new_user)
+                db.session.commit()
+            return {"mensaje":"cuenta creada exitosamente", "id": new_user.id }
+        else:
+            return {"mensaje":"Las contraseñas no cohinciden", "id": new_user.id }
 
 
 class LogInView(Resource):
     def post(self):
-        new_user = User(username=request.json["username"], password=request.json["password"])
-        token_de_acceso = create_access_token(identity = request.json["username"])
-        db.session.add(new_user)
+        user = User.query.filter(User.username == request.json["username"],
+                                User.password1 == request.json["password1"]).first()
         db.session.commit()
-        return {"token de acceso":token_de_acceso}
+        if user is None:
+            return "Ese usuario no ha sido registrado", 404
+        else:
+            token_de_acceso = create_access_token(identity=user.id)
+            return {"token": token_de_acceso}
 
 
 class FileView(Resource):
@@ -50,17 +62,24 @@ class FileView(Resource):
 
 class TasksView(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def post(self):
-
-        return 'task successfully created with id: ' + id, 201
+        args = request.args
+        new_task = Task(status = args.get('status'),
+                        input_format = args.get('input_format'),
+                        output_format = args.get('output_format'),
+                        id_user = args.get('id_user'))
+        db.session.add(new_task)
+        db.session.commit()
+        return task_schema.dump(new_task)
 
 
 class TaskView(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_task):
-        return None
+        task = Task.query.get_or_404(id_task)
+        return task_schema.dump(task)
 
     @jwt_required()
     def post(self, id_task):
@@ -88,3 +107,8 @@ class TaskViewUser(Resource):
     @jwt_required()
     def post(self, id_user):
         return None
+
+    #@jwt_required()
+    def get(self, id_user):
+        user = User.query.get_or_404(id_user)
+        return [task_schema.dump(task) for task in user.tasks]
