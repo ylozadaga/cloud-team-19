@@ -1,5 +1,5 @@
 from flask import request
-from models import db, User, UserSchema, Task, TaskSchema, File, FileSchema, Formats, Status
+from models import db, User, UserSchema, Task, TaskSchema, File, Formats, Status
 from utils.system_utils import delete_file_if_exist
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
@@ -96,7 +96,6 @@ class TasksView(Resource):
         db.session.add(task)
         db.session.add(file)
         db.session.commit()
-        
         return "Tarea creada correctamente con id: {}".format(task.id), 201
 
 
