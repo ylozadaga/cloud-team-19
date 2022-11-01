@@ -16,7 +16,7 @@ MarkupSafe==2.0.1
 marshmallow==3.12.1
 marshmallow-sqlalchemy==0.25.0
 PyJWT==2.1.0
-pytz==2021.1
+pytz
 six==1.16.0
 SQLAlchemy==1.4.15
 Werkzeug==2.0.1
@@ -24,5 +24,7 @@ gunicorn==20.1.0
 Flask-Mail==0.9.1
 requests==2.28.1
 Wheel==0.37.1
-Schedule==1.1.0
+Celery==5.2.7
 Pydub==0.25.1
+redis==4.3.4
+psycopg2-binary==2.9.5
