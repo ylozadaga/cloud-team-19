@@ -1,20 +1,15 @@
 from celery import Celery
 from pydub import AudioSegment
-from flask_mail import *
-from .database import User, Task, Status
-from .database.declarative_base import Base, engine, Session
+from models import User, Task, Status
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
-
-
-app.config["MAIL_SERVER"] = 'smtp.gmail.com'
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USERNAME"] = 'testseguridadarqui@gmail.com'
-app.config['MAIL_PASSWORD'] = 'mjeqqyxihistrnue'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-
-
+engine = create_engine('postgresql://root:admin123@172.17.0.2:5432/convertion-tool')
+Session = sessionmaker(bind=engine)
+session = Session()
+Base = declarative_base()
 
 
 
@@ -25,6 +20,13 @@ Base.metadata.create_all(engine)
 
 session = Session()
 
+'''
+app.config["MAIL_SERVER"] = 'smtp.gmail.com'
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USERNAME"] = 'testseguridadarqui@gmail.com'
+app.config['MAIL_PASSWORD'] = 'mjeqqyxihistrnue'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 
 def send_message(mail, email, input_file_name, output_format):
     message = Message('Notificacion finalizacion de conversion del archivo {}'.format(input_file_name),
@@ -33,7 +35,7 @@ def send_message(mail, email, input_file_name, output_format):
     message.body = 'El archivo {} ha sido convertido correctamente al formato {}'.format(input_file_name, output_format)
     mail.send(message)
     return True
-
+'''
 
 @app.task
 def convert_file(mail):

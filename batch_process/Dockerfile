@@ -2,8 +2,7 @@ FROM ubuntu:22.04
 WORKDIR /app
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
-COPY requirements.txt requirements.txt
-COPY /convertion_tool .
+COPY . .
 RUN mkdir -p /app/file_storage/input /app/file_storage/output
 RUN chown -R root:www-data /app
 RUN chmod -R 775 /app
@@ -11,7 +10,3 @@ RUN apt -y update && apt -y upgrade && apt -y install python3 python3-pip python
 RUN python -m venv venv
 RUN . venv/bin/activate
 RUN pip install -r requirements.txt
-COPY flask.conf /etc/nginx/conf.d/flask.conf
-RUN chmod 777 run.sh
-EXPOSE 8080
-CMD ./run.sh
