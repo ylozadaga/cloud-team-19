@@ -9,7 +9,7 @@ docker build . -t database-convertion-tool:v1
 
 Correr el contenedor ejecutando el comando:
 ```
-docker run --name database-convertion-tool -e POSTGRES_USER=root -e POSTGRES_PASSWORD=admin123 -e POSTGRES_DB=convertion-tool -p 5432:5432 -d database-convertion-tool
+docker run --name database-convertion-tool -e POSTGRES_USER=root -e POSTGRES_PASSWORD=admin123 -e POSTGRES_DB=convertion-tool -p 5432:5432 -d database-convertion-tool:v1
 ```
 
 ## Correr Contenedor de la app en Docker
@@ -33,7 +33,7 @@ docker build . -t batch-convertion-tool:v1
 
 Correr el contenedor ejecutando el comando:
 ```
-docker run --memory="1g" --cpus="1" --name batch-convertion-tool -p 8080:8080 convertion-tool:v1
+docker run --memory="1g" --cpus="1" --name batch-convertion-tool -p 8081:8081 batch-convertion-tool:v1
 ```
 
 ## Comprobar Funcionamiento
