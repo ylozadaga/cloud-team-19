@@ -28,3 +28,5 @@ Celery==5.2.7
 Pydub==0.25.1
 redis==4.3.4
 psycopg2-binary==2.9.5
+google==3.0.0
+google-cloud-storage==2.6.0
