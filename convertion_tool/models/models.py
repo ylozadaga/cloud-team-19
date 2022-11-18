@@ -39,8 +39,8 @@ class Status(enum.Enum):
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    input_path = db.Column(db.String)
-    output_path = db.Column(db.String)
+    input_file = db.Column(db.String)
+    output_file = db.Column(db.String)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 

@@ -4,13 +4,32 @@ from utils.system_utils import delete_file_if_exist
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource
 from datetime import datetime
+import google.cloud.storage as storage
+from google.oauth2 import service_account
 from werkzeug.utils import secure_filename
 import os
 
+project = 'convertion-tool'
+bucket_name = 'convertion-tool-storage'
+local_path = 'file_storage'
+
+credentials_dict = {
+    'type': os.environ['SA_TYPE'],
+    'project_id': os.environ['SA_PROJECT_ID'],
+    'private_key_id': os.environ['SA_PRIVATE_KEY_ID'],
+    'private_key': os.environ['SA_PRIVATE_KEY'],
+    'client_email': os.environ['SA_CLIENT_EMAIL'],
+    'client_id': os.environ['SA_CLIENT_ID'],
+    'auth_uri': os.environ['SA_AUTH_URI'],
+    'token_uri': os.environ['SA_TOKEN_URI'],
+    'auth_provider_x509_cert_url': os.environ['SA_AUTH_PROVIDER_X509_CERT_URL'],
+    'client_x509_cert_url': os.environ['SA_CLIENT_X509_CERT_URL']
+}
+
+credentials = service_account.Credentials.from_service_account_info(credentials_dict)
+
 user_schema = UserSchema()
 task_schema = TaskSchema()
-base_input_path = '/app/file_storage/input/'
-base_output_path = '/app/file_storage/output/'
 
 
 class PingPongView(Resource):
@@ -81,10 +100,16 @@ class TasksView(Resource):
         user_id = get_jwt_identity()
 
         secure_file_name = secure_filename(complete_file_name)
-        file.save(os.path.join(base_input_path, secure_file_name))
+        file_local_path = os.path.join(local_path, secure_file_name)
+        file.save(file_local_path)
 
-        file = File(input_path=base_input_path + file_name + "."+input_format.name.lower(),
-                    output_path=base_output_path + (file_name.split(".")[0]) + "."+output_format.name.lower())
+        client = storage.Client(credentials=credentials, project=project)
+        bucket = client.get_bucket(bucket_name)
+        blob = bucket.blob(complete_file_name)
+        blob.upload_from_filename(file_local_path)
+
+        file = File(input_file=file_name + "." + input_format.name.lower(),
+                    output_file=(file_name.split(".")[0]) + "." + output_format.name.lower())
 
         task = Task(status=status,
                     input_format=input_format,
@@ -96,6 +121,7 @@ class TasksView(Resource):
         db.session.add(task)
         db.session.add(file)
         db.session.commit()
+        delete_file_if_exist(file_local_path)
         return "Tarea creada correctamente con id: {}".format(task.id), 201
 
 
@@ -118,9 +144,12 @@ class TaskView(Resource):
             task.output_format = new_format_enum
             if Status.PROCESSED.name is task.status.name:
                 file = File.query.get_or_404(task.file.id)
-                delete_file_if_exist(file.output_path)
-                file.output_path = file.output_path.split(".")[0] + "." + task.output_format.name.lower()
-            task.status = Status.UPLOADED
+                client = storage.Client(credentials=credentials, project=project)
+                bucket = client.get_bucket(bucket_name)
+                blob = bucket.blob(file.output_file)
+                blob.delete()
+                file.output_file = file.output_file.split(".")[0] + "." + task.output_format.name.lower()
+                task.status = Status.UPLOADED
             db.session.commit()
         return task_schema.dump(task)
 
