@@ -6,7 +6,7 @@ from models import db, User
 from views import PingPongView, SignUpView, LogInView, FileView, TaskView, TasksView, TaskViewUser
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:admin123@10.54.240.3:5432/convertion-tool'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:admin123@10.54.241.3:5432/convertion-tool'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'frase-secreta'
 app.config['PROPAGATE_EXCEPTIONS'] = True
