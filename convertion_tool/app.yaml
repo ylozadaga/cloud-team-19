@@ -1,0 +1,9 @@
+runtime: custom
+env: flex
+#entrypoint: gunicorn -b :5000 app:app
+
+runtime_config:
+    python_version: 3.7
+
+env_variables:
+    CLOUD_STORAGE_BUCKET: convertion-tool-storage

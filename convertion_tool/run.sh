@@ -1,5 +1,7 @@
 #!/bin/sh
-gunicorn --bind 0.0.0.0:5000 wsgi:app &
+ln -s /etc/nginx/sites-available/convertion-tool /etc/nginx/sites-enabled
+systemctl start convertion-tool
+systemctl enable convertion-tool
 systemctl daemon-reload
-systemctl start nginx
-sleep infinity
+systemctl restart convertion-tool
+systemctl restart nginx

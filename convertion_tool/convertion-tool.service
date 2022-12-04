@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve convertion-tool
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/convertion_tool
+Environment="PATH/convertion_tool/venv/bin"
+ExecStart=/convertion_tool/venv/bin/gunicorn --workers 3 --bind unix:convertion_tool.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

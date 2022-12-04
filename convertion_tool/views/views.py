@@ -101,9 +101,9 @@ class TasksView(Resource):
         db.session.commit()
         delete_file_if_exist(file_local_path)
         attributes = {
-            'input_file_name': input_file_name,
-            'output_file_name': output_file_name,
-            'new_format': output_format
+            'input_file_name': str(input_file_name),
+            'output_file_name': str(output_file_name),
+            'new_format': output_format.name.lower()
         }
         future = publisher.publish(topic_path, str(task.id).encode('utf8'), **attributes)
         print(future.result())
