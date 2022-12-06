@@ -1,0 +1,11 @@
+service: web-api
+runtime: python310
+entrypoint: gunicorn -b :$PORT "app:app"
+liveness_check:
+  path: "/"
+readiness_check:
+  path: "/"
+instance_class: f2
+
+env_variables:
+  FLASK_APP: app:app
