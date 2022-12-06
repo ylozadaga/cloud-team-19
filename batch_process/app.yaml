@@ -1,4 +1,4 @@
-service: web-api
+service: worker
 runtime: python310
 entrypoint: gunicorn -b :$PORT "app:app"
 liveness_check:

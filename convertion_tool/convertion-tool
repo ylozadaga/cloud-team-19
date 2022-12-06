@@ -1,9 +1,9 @@
 server {
     client_max_body_size 6M;
     listen 8080;
-    server_name flask.convertion-tool.com;
+    server_name flask.converter-tool.com;
     location / {
         include proxy_params;
-        proxy_pass http://unix:$/convertion_tool/convertion_tool.sock;
+        proxy_pass http://unix:/convertion_tool/convertion_tool.sock;
     }
 }
