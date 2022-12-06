@@ -1,8 +1,5 @@
-from flask import Flask
-from flask_restful import Api
-from flask_cors import CORS
+from flask_restful import Resource
 from models import db, User, UserSchema, Task, TaskSchema, File, Formats, Status
-from views import PingPongView
 from google.oauth2 import service_account
 from werkzeug.utils import secure_filename
 import google.cloud.storage as storage
@@ -10,19 +7,6 @@ import google.cloud.pubsub as pubsub
 import os
 import subprocess
 import time
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:admin123@10.54.241.3:5432/convertion-tool'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config["MAIL_SERVER"] = 'smtp.gmail.com'
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USERNAME"] = 'testseguridadarqui@gmail.com'
-app.config['MAIL_PASSWORD'] = 'mjeqqyxihistrnue'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app_context = app.app_context()
-app_context.push()
 
 project = 'convertion-tool'
 bucket_name = 'convertion-tool-storage'
@@ -41,17 +25,21 @@ audio_formats = {
     "wma": '{} "{}" -c:a wmav2 "{}"',
 }
 
-with app_context:
-    cors = CORS(app)
-    api = Api(app)
-    api.add_resource(PingPongView, '/api/ping')
 
-    subscriber = pubsub.SubscriberClient().from_service_account_file('convertion-tool.json')
-    subscription_path = 'projects/convertion-tool/subscriptions/new-convertion-task-sub'
+class PingPongView(Resource):
+
+    def get(self):
+        return "pong", 200
 
 
-    def convert_file(input_file_name, output_file_name, output_format):
-        print('comienza el job')
+def convert_file(task_id):
+    print('comienza el job')
+    pending_task = Task.query.get_or_404(task_id)
+    if pending_task is not None:
+        output_format = pending_task.output_format
+        input_file_name = pending_task.file.input_file
+        output_file_name = pending_task.file.output_file
+
         secure_input_file_name = secure_filename(input_file_name)
         input_file_local_path = os.path.join(local_path, secure_input_file_name)
 
@@ -77,26 +65,8 @@ with app_context:
         blob = bucket.blob(output_file_local_path)
         blob.upload_from_filename(output_file_local_path)
 
+        pending_task.status = Status.PROCESSED
+        db.session.commit()
         print('termina y envia el mensaje')
         '''send_message(mail, user.email, input_path.split("/")[-1], output_format)'''
-
-
-def callback(message):
-    print(f'mensaje recibido: {message}')
-    print(f'data: {message.data}')
-    input_file_name = message.attributes.get('input_file_name')
-    output_file_name = message.attributes.get('output_file_name')
-    output_format = message.attributes.get('output_format')
-    convert_file(input_file_name, output_file_name, output_format)
-    message.ack()
-
-
-streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-print(f'escuchando los mensajes del topico {subscription_path}')
-
-with subscriber:
-    try:
-        streaming_pull_future.result()
-    except TimeoutError:
-        streaming_pull_future.cancel()
-        streaming_pull_future.result()
+    print('es null')

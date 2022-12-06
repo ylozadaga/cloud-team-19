@@ -15,7 +15,7 @@ Jinja2==3.0.1
 MarkupSafe==2.0.1
 marshmallow==3.12.1
 marshmallow-sqlalchemy==0.25.0
-PyJWT==2.1.0
+PyJWT==2.6.0
 pytz
 six==1.16.0
 SQLAlchemy==1.4.15
@@ -30,3 +30,5 @@ redis==4.3.4
 psycopg2-binary==2.9.5
 google==3.0.0
 google-cloud-storage==2.6.0
+google-cloud-pubsub==2.13.11
+py-healthcheck==1.10.1

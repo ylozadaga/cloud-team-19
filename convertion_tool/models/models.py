@@ -49,8 +49,9 @@ class Task(db.Model):
     status = db.Column(db.Enum(Status))
     input_format = db.Column(db.Enum(Formats))
     output_format = db.Column(db.Enum(Formats))
-    timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime)
+    modified_at = db.Column(db.DateTime)
     file = db.relationship('File', cascade=CASCADE, uselist=False)
 
 
@@ -97,7 +98,8 @@ class TaskSchema(SQLAlchemyAutoSchema):
         load_instance = True
 
     file = fields.Nested(FileSchema())
-    timestamp = fields.String()
+    created_at = fields.String()
+    modified_at = fields.String()
 
 
 class UserSchema(SQLAlchemyAutoSchema):
